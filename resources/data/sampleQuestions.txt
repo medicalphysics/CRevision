@@ -1,0 +1,5 @@
+#Question group; Question; Answers (comma delimited); Enable comment (Y)
+Henvisningen; Er den kliniske problemstillingen klart definert?;Nei, Mangler, I liten grad, I stor grad, Fullstendig;N
+Henvisningen; Er det gitt tilstrekkelig informasjon?;Nei, Mangler, I liten grad, I stor grad, Fullstendig;N
+Undersøkelseskvalitet;Er projeksjonen tilstrekkelig god?;Nei, Ikke tilfredsstilliende, I liten grad, Tilfredsstillende, Komplett; Y
+Undersøkelseskvalitet;Er undersøkelsen tilstrekkelig god?;Nei, Ikke tilfredsstilliende, I liten grad, Tilfredsstillende, Komplett; Y

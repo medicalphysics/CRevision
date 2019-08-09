@@ -52,13 +52,18 @@ MainWindow::MainWindow(QWidget* parent)
 	setCentralWidget(mainWidget);
 
 
-
-
-	
-
 	//test
+	QSqlDatabase db = QSqlDatabase::database();
+	
 	auto v = new QTableView(this);
 	mainLayout->addWidget(v);
+	auto testmodel = new QuestionModel(this, db);
+	v->setModel(testmodel);
+
+	auto w = new QTableView(this);
+	mainLayout->addWidget(w);
+	auto testcasemodel = new CaseModel(this, db);
+	w->setModel(testcasemodel);
 
 
 }
@@ -78,9 +83,9 @@ bool MainWindow::setupDataBase()
 	}
 
 	//creating tables if needed 
-	if (!db.tables().contains("data"))
+	if (!db.tables().contains("cases"))
 	{
-		QSqlQuery query("CREATE TABLE data (id INTEGER PRIMARY KEY, accession_name TEXT)");
+		QSqlQuery query("CREATE TABLE cases (id INTEGER PRIMARY KEY, case_name TEXT)");
 		if (!query.isActive())
 			qWarning() << "MainWindow::DatabaseInit - ERROR: " << query.lastError().text();
 		qDebug() << query.executedQuery();
@@ -95,10 +100,10 @@ bool MainWindow::setupDataBase()
 	}
 	if (!db.tables().contains("answers"))
 	{
-		QSqlQuery query("CREATE TABLE answers (id INTEGER PRIMARY KEY, question TEXT, answer TEXT, comment TEXT, accession_name TEXT, username TEXT, date INTEGER)");
+		QSqlQuery query("CREATE TABLE answers (id INTEGER PRIMARY KEY, question TEXT, answer TEXT, comment TEXT, accession_name TEXT, username TEXT, date TEXT)");
 		if (!query.isActive())
 			qWarning() << "MainWindow::DatabaseInit - ERROR: " << query.lastError().text();
 		qDebug() << query.executedQuery();
 	}
-
+	return true;
 }

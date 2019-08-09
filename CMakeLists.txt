@@ -68,6 +68,8 @@ endif(WIN32)
 add_custom_target(addresources ALL)
 set (fileresources 
 	"icons/icon.png"
+	"data/sampleCases.txt"
+	"data/sampleQuestions.txt"
 	)
 foreach(fileresource ${fileresources})
 	set(outpath "${CMAKE_BINARY_DIR}/resources/${fileresource}")
