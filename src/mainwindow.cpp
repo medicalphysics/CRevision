@@ -18,16 +18,14 @@ Copyright 2019 Erlend Andersen
 
 #include "mainwindow.h"
 #include "userinfowidget.h"
-#include "models.h"
+#include "questioncollectionwidget.h"
+#include "casewidget.h"
 
 #include <QWidget>
-#include <QTabWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
 #include <QSqlDatabase>
-
-#include <QTableView>
 
 #include <QDebug>
 
@@ -44,26 +42,28 @@ MainWindow::MainWindow(QWidget* parent)
 	//creating layout
     auto mainLayout = new QVBoxLayout;
 
+	//userinfo
 	auto userInfo = new UserInfoWidget(this);
 	mainLayout->addWidget(userInfo);
+	//casewidget
+	auto caseWidget = new CaseWidget(this);
+	connect(userInfo, &UserInfoWidget::usernameChanged, caseWidget, &CaseWidget::setUserName);
+	mainLayout->addWidget(caseWidget);
+	//questions
+	auto questionsWidget = new QuestionCollectionWidget(this);
+	mainLayout->addWidget(questionsWidget);
+
+
+
 
 	auto mainWidget = new QWidget(this);
 	mainWidget->setLayout(mainLayout);
 	setCentralWidget(mainWidget);
 
 
-	//test
-	QSqlDatabase db = QSqlDatabase::database();
-	
-	auto v = new QTableView(this);
-	mainLayout->addWidget(v);
-	auto testmodel = new QuestionModel(this, db);
-	v->setModel(testmodel);
 
-	auto w = new QTableView(this);
-	mainLayout->addWidget(w);
-	auto testcasemodel = new CaseModel(this, db);
-	w->setModel(testcasemodel);
+	//test
+	
 
 
 }
@@ -85,7 +85,7 @@ bool MainWindow::setupDataBase()
 	//creating tables if needed 
 	if (!db.tables().contains("cases"))
 	{
-		QSqlQuery query("CREATE TABLE cases (id INTEGER PRIMARY KEY, case_name TEXT)");
+		QSqlQuery query("CREATE TABLE cases (id INTEGER PRIMARY KEY, accession_name TEXT)");
 		if (!query.isActive())
 			qWarning() << "MainWindow::DatabaseInit - ERROR: " << query.lastError().text();
 		qDebug() << query.executedQuery();

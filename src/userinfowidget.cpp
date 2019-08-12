@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QString>
+#include <QTimer>
 
 #include <windows.h>
 #include <Lmcons.h>
@@ -30,11 +31,14 @@ UserInfoWidget::UserInfoWidget(QWidget* parent)
 	auto nameLayout = new QHBoxLayout;
 	auto nameLabel = new QLabel(tr("Name:"), this);
 	auto nameEdit = new QLineEdit(this);
-	nameEdit->setText(findUsername());
+	//nameEdit->setText(findUsername());
 	nameLayout->addWidget(nameLabel);
 	nameLayout->addWidget(nameEdit);
 	mainLayout->addLayout(nameLayout);
 
-
+	connect(nameEdit, &QLineEdit::textChanged, [=](auto text) {emit usernameChanged(text); });
 	setLayout(mainLayout);
+
+	QTimer::singleShot(0, [=]() {nameEdit->setText(findUsername()); });
+
 }

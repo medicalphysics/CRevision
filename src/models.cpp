@@ -16,6 +16,23 @@ QuestionModel::QuestionModel(QObject* parent, QSqlDatabase db)
 	select();
 	readQuestions("resources/data/sampleQuestions.txt");
 }
+
+Question QuestionModel::question(int index)
+{
+	Question q;
+	if (index < 0 || index >= rowCount())
+		return q;
+	auto r = record(index);
+	q.questionGroup = r.field("question_group").value().toString();
+	q.question = r.field("question").value().toString();
+	q.comment = r.field("comment").value().toInt() > 0;
+
+	auto answers = r.field("answers").value().toString();
+	q.answers = answers.split(',');
+	q.valid = true;
+	return q;
+}
+
 void QuestionModel::readQuestions(const QString& filepath)
 {
 	QFile file(filepath);
@@ -26,6 +43,11 @@ void QuestionModel::readQuestions(const QString& filepath)
 		file.close();
 		return;
 	}
+
+	//deletes questions
+
+	removeRows(0, rowCount());
+	submitAll();
 
 	QTextStream in(&file);
 	while (!in.atEnd())
@@ -61,7 +83,9 @@ void QuestionModel::readQuestions(const QString& filepath)
 AnswerModel::AnswerModel(QObject* parent, QSqlDatabase db)
 	:QSqlTableModel(parent, db)
 {
-
+	setEditStrategy(QSqlTableModel::OnManualSubmit);
+	setTable("answers");
+	select();
 }
 
 CaseModel::CaseModel(QObject* parent, QSqlDatabase db)
@@ -99,7 +123,7 @@ void CaseModel::readCases(const QString& filepath)
 			ignore = true;
 		if (!ignore)
 		{
-			element.setValue("case_name", line.at(0).trimmed());
+			element.setValue("accession_name", line.at(0).trimmed());
 			auto success = insertRecord(-1, element);
 			if (!success)
 				qDebug() << "Failed to insert case row";

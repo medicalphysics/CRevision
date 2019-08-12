@@ -40,6 +40,12 @@ add_executable(CRevision WIN32
 	src/userinfowidget.cpp
 	src/models.h
 	src/models.cpp
+	src/questionwidget.h
+	src/questionwidget.cpp
+	src/questioncollectionwidget.h
+	src/questioncollectionwidget.cpp
+	src/casewidget.cpp
+	src/casewidget.h
     )
 
 
