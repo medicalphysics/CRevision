@@ -18,6 +18,9 @@ Copyright 2019 Erlend Andersen
 #pragma once
 
 #include <QMainWindow>
+#include "userinfowidget.h"
+#include "questioncollectionwidget.h"
+#include "casewidget.h"
 
 class MainWindow : public QMainWindow
 {
@@ -25,6 +28,12 @@ class MainWindow : public QMainWindow
 public:
 	MainWindow(QWidget* parent = nullptr);
 	
-private:
+protected:
 	bool setupDataBase();
+	void saveAnswers();
+private:
+	UserInfoWidget* m_userInfo = nullptr;
+	CaseWidget* m_caseWidget = nullptr;
+	QuestionCollectionWidget* m_questionsWidget = nullptr;
+	AnswerModel* m_answerModel = nullptr;
 };

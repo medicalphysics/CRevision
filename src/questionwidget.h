@@ -3,7 +3,8 @@
 #include <QWidget>
 #include <QString>
 #include <QStringList>
-
+#include <QRadioButton>
+#include <QVector>
 class QuestionWidget : public QWidget
 {
 	Q_OBJECT
@@ -17,7 +18,12 @@ public:
 	const QString& questionGroup() const { return m_questionGroup; };
 	const QString& answer() const { return m_answer; };
 	const QString& comment() const { return m_comment; };
+	bool hasAnswer() {return m_hasAnswer;}
+	void clearQuestion();
+signals:
+	void answerChanged(void);
 protected:
+	void buttonClicked();
 private:
 	bool m_hasComment = true;
 	QString m_questionGroup = "";
@@ -25,8 +31,8 @@ private:
 	QString m_comment = "";
 	QString m_answer = "";
 	QStringList m_answers;
-	
-	// widgets
+	bool m_hasAnswer = false;
+	QVector<QRadioButton*> m_buttons;
 
 
 };

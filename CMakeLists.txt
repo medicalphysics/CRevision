@@ -46,6 +46,8 @@ add_executable(CRevision WIN32
 	src/questioncollectionwidget.cpp
 	src/casewidget.cpp
 	src/casewidget.h
+	src/nextwidget.cpp
+	src/nextwidget.h
     )
 
 

@@ -6,6 +6,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <QDateTime>
 
 class Question
 {
@@ -28,11 +29,27 @@ protected:
 	void readQuestions(const QString& filepath);
 };
 
+
+class Answer
+{
+public:
+	QString questionGroup;
+	QString question;
+	QString answer;
+	QString comment;
+	QString accessionName;
+	QString username;
+	QString date;
+	bool isValid=false;
+	Answer() { date = QDateTime::currentDateTime().toString("dd.MM.yyyy HH:mm:ss"); }
+};
+
 class AnswerModel :public QSqlTableModel
 {
 	Q_OBJECT
 public:
 	AnswerModel(QObject* parent = nullptr, QSqlDatabase db = QSqlDatabase());
+	void saveAnswer(const Answer& answer);
 };
 
 class CaseModel :public QSqlTableModel

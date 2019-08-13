@@ -36,7 +36,7 @@ UserInfoWidget::UserInfoWidget(QWidget* parent)
 	nameLayout->addWidget(nameEdit);
 	mainLayout->addLayout(nameLayout);
 
-	connect(nameEdit, &QLineEdit::textChanged, [=](auto text) {emit usernameChanged(text); });
+	connect(nameEdit, &QLineEdit::textChanged, [=](auto text) {m_currentUsername = text; emit usernameChanged(text); });
 	setLayout(mainLayout);
 
 	QTimer::singleShot(0, [=]() {nameEdit->setText(findUsername()); });

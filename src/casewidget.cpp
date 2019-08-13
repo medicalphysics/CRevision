@@ -8,8 +8,8 @@
 #include <QClipBoard>
 #include <QGuiApplication>
 #include <QSet>
-#include < QRandomGenerator>
-
+#include <QRandomGenerator>
+#include <QTimer>
 #include <qdebug.h>
 
 CaseWidget::CaseWidget(QWidget* parent)
@@ -28,7 +28,8 @@ CaseWidget::CaseWidget(QWidget* parent)
 	layout->addWidget(m_lineEdit);
 	layout->addWidget(copyButton);
 	setLayout(layout);
-	nextCase();
+	QTimer::singleShot(0, [=]() {this->nextCase(); });
+	
 }
 
 void CaseWidget::nextCase()
@@ -37,36 +38,38 @@ void CaseWidget::nextCase()
 
 	QSqlQuery query(db);
 	//finding used accession names
-	query.bindValue(":username", m_username);
-	query.exec("SELECT DISTINCT accession_name FROM answers WHERE username = :username");
+	qDebug() << "username: " << m_username;
+	
+	//query.exec("SELECT DISTINCT accession_name FROM answers WHERE username = :username");
 
-	QSet<QString> usedAC;
+	//finding case that has not been answered by username
+	QString queryTxt = "SELECT DISTINCT accession_name FROM cases WHERE accession_name NOT IN (SELECT accession_name FROM answers WHERE username = '";
+	queryTxt += m_username + "')";
+	//query.prepare("SELECT DISTINCT accession_name FROM cases WHERE accession_name NOT IN (SELECT accession_name FROM answers WHERE username = ?)");
+	//query.addBindValue(m_username, QSql::Out);
+	query.exec(queryTxt);
+
+
+
+	qDebug() << "Executed query: " << query.executedQuery();
+	QSet<QString> availableCases;
 	while (query.next())
 	{
 		auto ac = query.value(0).toString();
-		usedAC.insert(ac);
+		availableCases.insert(ac);
 	}
-	//finding all accession names
-	query.clear();
-	query.exec("SELECT accession_name FROM cases");
-	QSet<QString> allAC;
-	while (query.next())
+	
+	int count = availableCases.count();
+	if (count == 0) // if no available cases return empty string
 	{
-		auto ac = query.value(0).toString();
-		allAC.insert(ac);
-	}
-	allAC.subtract(usedAC);
-	int count = allAC.count();
-	if (count == 0)
+		m_lineEdit->setText("");
 		return;
-	qDebug() << allAC;
+	}
+	//finding random available case
 	int n = QRandomGenerator::global()->bounded(count);
-	auto pos = allAC.begin();
+	auto pos = availableCases.begin();
 	auto accession_number = *(pos+n);
 	m_lineEdit->setText(accession_number);
-	//finding random 
-
-
 }
 
 void CaseWidget::copyToClipBoard()

@@ -12,6 +12,7 @@ public:
 	CaseWidget(QWidget* parent = nullptr);
 	void nextCase();
 	void setUserName(const QString& user) { m_username = user; }
+	QString currentCase() { return m_lineEdit->text(); }
 protected:
 	void copyToClipBoard();
 

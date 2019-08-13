@@ -17,9 +17,7 @@ Copyright 2019 Erlend Andersen
 */
 
 #include "mainwindow.h"
-#include "userinfowidget.h"
-#include "questioncollectionwidget.h"
-#include "casewidget.h"
+
 
 #include <QWidget>
 #include <QVBoxLayout>
@@ -29,6 +27,8 @@ Copyright 2019 Erlend Andersen
 
 #include <QDebug>
 
+#include "nextwidget.h"
+
 MainWindow::MainWindow(QWidget* parent) 
 	: QMainWindow(parent)
 {
@@ -37,34 +37,38 @@ MainWindow::MainWindow(QWidget* parent)
 	//setting up database
 	if (!setupDataBase())
 		return;
-
+	QSqlDatabase db = QSqlDatabase::database();
+	m_answerModel = new AnswerModel(this, db);
 
 	//creating layout
     auto mainLayout = new QVBoxLayout;
 
 	//userinfo
-	auto userInfo = new UserInfoWidget(this);
-	mainLayout->addWidget(userInfo);
+	m_userInfo = new UserInfoWidget(this);
+	mainLayout->addWidget(m_userInfo);
 	//casewidget
-	auto caseWidget = new CaseWidget(this);
-	connect(userInfo, &UserInfoWidget::usernameChanged, caseWidget, &CaseWidget::setUserName);
-	mainLayout->addWidget(caseWidget);
+	m_caseWidget = new CaseWidget(this);
+	connect(m_userInfo, &UserInfoWidget::usernameChanged, m_caseWidget, &CaseWidget::setUserName);
+	mainLayout->addWidget(m_caseWidget);
 	//questions
-	auto questionsWidget = new QuestionCollectionWidget(this);
-	mainLayout->addWidget(questionsWidget);
-
-
-
+	m_questionsWidget = new QuestionCollectionWidget(this);
+	mainLayout->addWidget(m_questionsWidget);
+	//nextcase
+	auto nextWidget = new NextWidget(this);
+	mainLayout->addWidget(nextWidget);
 
 	auto mainWidget = new QWidget(this);
 	mainWidget->setLayout(mainLayout);
 	setCentralWidget(mainWidget);
 
-
-
-	//test
-	
-
+	//logic
+	connect(m_userInfo, &UserInfoWidget::usernameChanged, m_caseWidget, &CaseWidget::setUserName);
+	connect(nextWidget, &NextWidget::discardAndNextCase, m_questionsWidget, &QuestionCollectionWidget::clearAllQuestions);
+	connect(nextWidget, &NextWidget::discardAndNextCase, m_caseWidget, &CaseWidget::nextCase);
+	connect(nextWidget, &NextWidget::saveAndNextCase, this, &MainWindow::saveAnswers);
+	connect(nextWidget, &NextWidget::saveAndNextCase, m_questionsWidget, &QuestionCollectionWidget::clearAllQuestions);
+	connect(nextWidget, &NextWidget::saveAndNextCase, m_caseWidget, &CaseWidget::nextCase);
+	connect(m_questionsWidget, &QuestionCollectionWidget::answerReady, nextWidget, &NextWidget::answersReady);
 
 }
 
@@ -100,10 +104,33 @@ bool MainWindow::setupDataBase()
 	}
 	if (!db.tables().contains("answers"))
 	{
-		QSqlQuery query("CREATE TABLE answers (id INTEGER PRIMARY KEY, question TEXT, answer TEXT, comment TEXT, accession_name TEXT, username TEXT, date TEXT)");
+		QSqlQuery query("CREATE TABLE answers (id INTEGER PRIMARY KEY, question_group TEXT, question TEXT, answer TEXT, comment TEXT, accession_name TEXT, username TEXT, date TEXT)");
 		if (!query.isActive())
 			qWarning() << "MainWindow::DatabaseInit - ERROR: " << query.lastError().text();
 		qDebug() << query.executedQuery();
 	}
 	return true;
+}
+
+void MainWindow::saveAnswers()
+{
+	auto  record = m_answerModel->record();
+	QString caseName = m_caseWidget->currentCase();
+	QString username = m_userInfo->currentUsername();
+	record.setValue("accession_name", caseName);
+	record.setValue("username", username);
+
+	auto answers = m_questionsWidget->getAnswers();
+	for (const auto& a : answers)
+	{
+		auto r = QSqlRecord(record);
+		r.setValue("question_group", a.questionGroup.trimmed());
+		r.setValue("question", a.question.trimmed());
+		r.setValue("answer", a.answer.trimmed());
+		r.setValue("comment", a.comment.trimmed());
+		r.setValue("date", a.date.trimmed());
+		auto success = m_answerModel->insertRecord(-1, r);
+		qDebug() << "Insert answer " << success;
+	}
+	m_answerModel->submitAll();
 }

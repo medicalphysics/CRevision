@@ -6,7 +6,7 @@
 #include <QTextStream>
 #include <QStringList>
 #include <QSqlRecord>
-
+#include <QDateTime>
 
 QuestionModel::QuestionModel(QObject* parent, QSqlDatabase db)
 	:QSqlTableModel(parent, db)
@@ -45,7 +45,6 @@ void QuestionModel::readQuestions(const QString& filepath)
 	}
 
 	//deletes questions
-
 	removeRows(0, rowCount());
 	submitAll();
 
@@ -88,6 +87,19 @@ AnswerModel::AnswerModel(QObject* parent, QSqlDatabase db)
 	select();
 }
 
+void AnswerModel::saveAnswer(const Answer& answer)
+{
+	auto element = this->record();
+	element.setValue("question_group", answer.questionGroup.trimmed());
+	element.setValue("question", answer.question.trimmed());
+	element.setValue("answer", answer.answer.trimmed());
+	element.setValue("comment", answer.comment.trimmed());
+	element.setValue("accession_name", answer.accessionName.trimmed());
+	element.setValue("username", answer.username.trimmed());
+	element.setValue('date', answer.date);
+}
+
+
 CaseModel::CaseModel(QObject* parent, QSqlDatabase db)
 	: QSqlTableModel(parent, db)
 {
@@ -99,6 +111,11 @@ CaseModel::CaseModel(QObject* parent, QSqlDatabase db)
 
 void CaseModel::readCases(const QString& filepath)
 {
+
+	//deletes all cases
+	removeRows(0, rowCount());
+	submitAll();
+
 	QFile file(filepath);
 	if (!file.open(QFile::ReadOnly |
 		QFile::Text))
@@ -131,4 +148,9 @@ void CaseModel::readCases(const QString& filepath)
 		}
 	}
 	file.close();
+
+	//deleting duplucates
+	auto db = database();
+	db.exec("DELETE FROM cases WHERE id NOT IN (SELECT MAX(id) FROM cases GROUP BY accession_name)");
+
 }
