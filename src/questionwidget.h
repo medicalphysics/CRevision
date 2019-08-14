@@ -22,8 +22,10 @@ public:
 	void clearQuestion();
 signals:
 	void answerChanged(void);
+	void cleared(void);
 protected:
 	void buttonClicked();
+	void setComment(const QString& txt) { m_comment = txt; }
 private:
 	bool m_hasComment = true;
 	QString m_questionGroup = "";

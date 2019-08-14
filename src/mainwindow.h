@@ -31,6 +31,7 @@ public:
 protected:
 	bool setupDataBase();
 	void saveAnswers();
+	void exportData();
 private:
 	UserInfoWidget* m_userInfo = nullptr;
 	CaseWidget* m_caseWidget = nullptr;

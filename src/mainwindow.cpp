@@ -18,20 +18,35 @@ Copyright 2019 Erlend Andersen
 
 #include "mainwindow.h"
 
-
 #include <QWidget>
+#include <QMenuBar>
+//#include <QKeySequence>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-
 #include <QSqlDatabase>
-
 #include <QDebug>
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
 
 #include "nextwidget.h"
+
+
 
 MainWindow::MainWindow(QWidget* parent) 
 	: QMainWindow(parent)
 {
+
+	auto menu = this->menuBar();
+	auto fileMenu = menu->addMenu(tr("File"));
+	auto exportAction = fileMenu->addAction(tr("Export answers"));
+	fileMenu->addSeparator();
+	auto quitAction = fileMenu->addAction(tr("Quit"));
+	connect(exportAction, &QAction::triggered, this, &MainWindow::exportData);
+	connect(quitAction, &QAction::triggered, this, &MainWindow::close);
+	exportAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
+	quitAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_F4));
+
 
 
 	//setting up database
@@ -133,4 +148,41 @@ void MainWindow::saveAnswers()
 		qDebug() << "Insert answer " << success;
 	}
 	m_answerModel->submitAll();
+}
+
+void MainWindow::exportData()
+{
+	auto savepath = QFileDialog::getSaveFileName(this, tr("Export answers"), "", "*.txt");
+	if (savepath.isNull())
+	{
+		return;
+	}
+
+	QSqlDatabase db = QSqlDatabase::database();
+	QSqlQuery query(db);
+	query.exec("SELECT * FROM answers");
+
+	QFile file(savepath);
+	if (file.open(QIODevice::WriteOnly))
+	{
+		QTextStream stream(&file);
+		auto record = db.record("answers");
+		QStringList fieldNames;
+		for (int i = 0; i < record.count(); ++i)
+		{
+			fieldNames.append(record.fieldName(i));
+			stream << record.fieldName(i) << ";";
+		}
+		stream << "\n";
+		while (query.next())
+		{
+			for (const auto& fn : fieldNames)
+			{ 
+				stream << query.value(fn).toString() << ";";
+			}
+			stream << "\n";
+		}
+		file.close();
+	}
+
 }

@@ -34,6 +34,8 @@ QuestionWidget::QuestionWidget(QWidget* parent, const QString& questionGroup, co
 	auto commentLabel = new QLabel(tr("Comment"), this);
 	commentLayout->addWidget(commentLabel);
 	auto commentLineEdit = new QLineEdit(this);
+	connect(commentLineEdit, &QLineEdit::textChanged, this, &QuestionWidget::setComment);
+	connect(this, &QuestionWidget::cleared, commentLineEdit, &QLineEdit::clear);
 	commentLineEdit->setEnabled(m_hasComment);
 	commentLayout->addWidget(commentLineEdit);
 	mainLayout->addLayout(commentLayout);
@@ -51,6 +53,8 @@ void QuestionWidget::clearQuestion()
 		r->setAutoExclusive(true);
 	}
 	m_hasAnswer = false;
+	m_comment = "";
+	emit cleared();
 }
 
 void QuestionWidget::buttonClicked()
