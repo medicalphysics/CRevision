@@ -17,18 +17,21 @@ include(GNUInstallDirs)
 # Build types 
 set(CMAKE_CONFIGURATION_TYPES )
 
+##find QT
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Sql LinguistTools)
+
 ## QT specifics for CMake
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Sql)
-find_package(Qt5Charts)
+
+
 IF(UNIX AND NOT APPLE)
     find_package(Qt5 REQUIRED COMPONENTS X11Extras )
 ENDIF()
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
-include_directories(${Qt5Charts_INCLUDE_DIRS})
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 # Define an executable (WIN32 argument to prevent console window on windows)
@@ -52,6 +55,10 @@ add_executable(CRevision WIN32
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/CRevision")
+
+#creating translations
+message(${CMAKE_SOURCE_DIR})
+qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR}/src english.ts norwegian.ts)
 
 # Define the libraries this project depends upon
 target_link_libraries(CRevision
@@ -91,3 +98,5 @@ foreach(fileresource ${fileresources})
 		${outpath}
 	)
 endforeach()
+
+
