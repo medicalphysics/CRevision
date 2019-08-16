@@ -61,6 +61,7 @@ QVector<Answer> QuestionCollectionWidget::getAnswers()
 		answers[i].answer = m_questionWidgets[i]->answer();
 		answers[i].comment = m_questionWidgets[i]->comment();
 		answers[i].isValid = m_questionWidgets[i]->hasAnswer();
+		answers[i].answers = m_questionWidgets[i]->answers();
 	}
 	return answers;
 }

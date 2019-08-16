@@ -36,6 +36,7 @@ public:
 	QString questionGroup;
 	QString question;
 	QString answer;
+	QString answers;
 	QString comment;
 	QString accessionName;
 	QString username;

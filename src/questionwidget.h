@@ -18,6 +18,7 @@ public:
 	const QString& questionGroup() const { return m_questionGroup; };
 	const QString& answer() const { return m_answer; };
 	const QString& comment() const { return m_comment; };
+	QString answers() const { return m_answers.join(','); }
 	bool hasAnswer() {return m_hasAnswer;}
 	void clearQuestion();
 signals:

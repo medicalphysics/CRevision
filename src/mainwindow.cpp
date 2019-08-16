@@ -123,7 +123,7 @@ bool MainWindow::setupDataBase()
 	}
 	if (!db.tables().contains("answers"))
 	{
-		QSqlQuery query("CREATE TABLE answers (id INTEGER PRIMARY KEY, question_group TEXT, question TEXT, answer TEXT, comment TEXT, accession_name TEXT, username TEXT, date TEXT)");
+		QSqlQuery query("CREATE TABLE answers (id INTEGER PRIMARY KEY, question_group TEXT, question TEXT, answers TEXT, answer TEXT, comment TEXT, accession_name TEXT, username TEXT, date TEXT)");
 		if (!query.isActive())
 			qWarning() << "MainWindow::DatabaseInit - ERROR: " << query.lastError().text();
 		qDebug() << query.executedQuery();
@@ -146,6 +146,7 @@ void MainWindow::saveAnswers()
 		r.setValue("question_group", a.questionGroup.trimmed());
 		r.setValue("question", a.question.trimmed());
 		r.setValue("answer", a.answer.trimmed());
+		r.setValue("answers", a.answers.trimmed());
 		r.setValue("comment", a.comment.trimmed());
 		r.setValue("date", a.date.trimmed());
 		auto success = m_answerModel->insertRecord(-1, r);
