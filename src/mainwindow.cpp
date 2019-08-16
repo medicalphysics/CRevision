@@ -28,6 +28,7 @@ Copyright 2019 Erlend Andersen
 #include <QFileDialog>
 #include <QFile>
 #include <QTextStream>
+#include <QScrollArea>
 
 #include "nextwidget.h"
 
@@ -66,8 +67,11 @@ MainWindow::MainWindow(QWidget* parent)
 	connect(m_userInfo, &UserInfoWidget::usernameChanged, m_caseWidget, &CaseWidget::setUserName);
 	mainLayout->addWidget(m_caseWidget);
 	//questions
-	m_questionsWidget = new QuestionCollectionWidget(this);
-	mainLayout->addWidget(m_questionsWidget);
+	auto scrollArea = new QScrollArea(this);
+	m_questionsWidget = new QuestionCollectionWidget(scrollArea);
+	scrollArea->setWidget(m_questionsWidget);
+	scrollArea->setWidgetResizable(true);
+	mainLayout->addWidget(scrollArea);
 	//nextcase
 	auto nextWidget = new NextWidget(this);
 	mainLayout->addWidget(nextWidget);

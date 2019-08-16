@@ -26,6 +26,9 @@ QuestionCollectionWidget::QuestionCollectionWidget(QWidget* parent)
 		}
 	}
 	QMap<QString, QGridLayout*> layouts;
+
+	const int nColumns = 4;
+
 	for (auto w : m_questionWidgets)
 	{
 		auto group = w->questionGroup();
@@ -38,9 +41,10 @@ QuestionCollectionWidget::QuestionCollectionWidget(QWidget* parent)
 			mainLayout->addWidget(box);
 		}
 		auto layout = layouts[group];
-		int n_elements = layout->count();
-		int row = n_elements / 2;
-		int column = n_elements % 2 ? 1 : 0;
+		const int n_elements = layout->count();
+
+		const int row = n_elements / nColumns;
+		const int column = n_elements % nColumns;
 		layout->addWidget(w, row, column);
 	}
 
