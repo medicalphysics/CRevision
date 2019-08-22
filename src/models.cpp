@@ -28,7 +28,11 @@ Question QuestionModel::question(int index)
 	q.comment = r.field("comment").value().toInt() > 0;
 
 	auto answers = r.field("answers").value().toString();
-	q.answers = answers.split(',');
+	auto answersList = answers.split(',');
+	for (const auto& ans : answersList)
+	{
+		q.answers.append(ans.trimmed());
+	}
 	q.valid = true;
 	return q;
 }

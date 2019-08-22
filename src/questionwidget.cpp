@@ -50,6 +50,7 @@ QuestionWidget::QuestionWidget(QWidget* parent, const QString& questionGroup, co
 
 	commentLayout->addWidget(commentLabel);
 	auto commentLineEdit = new QLineEdit(this);
+	commentLineEdit->setFont(font);
 	connect(commentLineEdit, &QLineEdit::textChanged, this, &QuestionWidget::setComment);
 	connect(this, &QuestionWidget::cleared, commentLineEdit, &QLineEdit::clear);
 	commentLineEdit->setEnabled(m_hasComment);
