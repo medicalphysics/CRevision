@@ -5,6 +5,7 @@
 #include <QString>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QFont>
 
 QuestionCollectionWidget::QuestionCollectionWidget(QWidget* parent)
 	:QWidget(parent)
@@ -27,7 +28,7 @@ QuestionCollectionWidget::QuestionCollectionWidget(QWidget* parent)
 	}
 	QMap<QString, QGridLayout*> layouts;
 
-	const int nColumns = 4;
+	const int maxColumns = 3;
 
 	for (auto w : m_questionWidgets)
 	{
@@ -35,20 +36,35 @@ QuestionCollectionWidget::QuestionCollectionWidget(QWidget* parent)
 		if (!layouts.contains(group))
 		{
 			auto box = new QGroupBox(group);
+
+			QFont font = box->font();
+			font.setPointSize(font.pointSize() + 4);
+			font.setBold(true);
+			box->setFont(font);
+
 			layouts[group] = new QGridLayout(this);
 			box->setLayout(layouts[group]);
-			//mainLayout->addLayout(layouts[group]);
 			mainLayout->addWidget(box);
 		}
 		auto layout = layouts[group];
+		layout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 		const int n_elements = layout->count();
 
-		const int row = n_elements / nColumns;
-		const int column = n_elements % nColumns;
+		const int row = n_elements / maxColumns;
+		const int column = n_elements % maxColumns;
 		layout->addWidget(w, row, column);
 	}
 
-	setLayout(mainLayout);
+	mainLayout->addStretch();
+	
+	auto vStrechLayout = new QHBoxLayout(this);
+	vStrechLayout->setContentsMargins(0, 0, 0, 0);
+	vStrechLayout->addLayout(mainLayout);
+	auto spacerItem = new QSpacerItem(1, 1, QSizePolicy::Maximum, QSizePolicy::Maximum);
+	vStrechLayout->addSpacerItem(spacerItem);
+
+
+	setLayout(vStrechLayout);
 }
 
 QVector<Answer> QuestionCollectionWidget::getAnswers()

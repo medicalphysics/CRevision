@@ -17,10 +17,10 @@ Copyright 2019 Erlend Andersen
 */
 
 #include "mainwindow.h"
-
+#include <QApplication>
 #include <QWidget>
 #include <QMenuBar>
-//#include <QKeySequence>
+#include <QStyle>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QSqlDatabase>
@@ -29,12 +29,13 @@ Copyright 2019 Erlend Andersen
 #include <QFile>
 #include <QTextStream>
 #include <QScrollArea>
+#include <QTimer>
 
 #include "nextwidget.h"
 
 
 
-MainWindow::MainWindow(QWidget* parent) 
+MainWindow::MainWindow(QWidget* parent)
 	: QMainWindow(parent)
 {
 
@@ -57,7 +58,7 @@ MainWindow::MainWindow(QWidget* parent)
 	m_answerModel = new AnswerModel(this, db);
 
 	//creating layout
-    auto mainLayout = new QVBoxLayout;
+	auto mainLayout = new QVBoxLayout;
 
 	//userinfo
 	m_userInfo = new UserInfoWidget(this);
@@ -70,15 +71,23 @@ MainWindow::MainWindow(QWidget* parent)
 	auto scrollArea = new QScrollArea(this);
 	m_questionsWidget = new QuestionCollectionWidget(scrollArea);
 	scrollArea->setWidget(m_questionsWidget);
-	scrollArea->setWidgetResizable(true);
+	scrollArea->setWidgetResizable(false);
+	scrollArea->setAlignment(Qt::AlignLeft);
+	//scrollArea->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+	scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	auto scrollView = scrollArea->viewport();
+	//scrollView->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 	mainLayout->addWidget(scrollArea);
 	//nextcase
 	auto nextWidget = new NextWidget(this);
 	mainLayout->addWidget(nextWidget);
 
+
 	auto mainWidget = new QWidget(this);
 	mainWidget->setLayout(mainLayout);
 	setCentralWidget(mainWidget);
+
+
 
 	//logic
 	connect(m_userInfo, &UserInfoWidget::usernameChanged, m_caseWidget, &CaseWidget::setUserName);
@@ -89,6 +98,21 @@ MainWindow::MainWindow(QWidget* parent)
 	connect(nextWidget, &NextWidget::saveAndNextCase, m_caseWidget, &CaseWidget::nextCase);
 	connect(m_questionsWidget, &QuestionCollectionWidget::answerReady, nextWidget, &NextWidget::answersReady);
 
+	QTimer::singleShot(0, [=](void) {this->setMinimumFixedSize(m_questionsWidget); });
+}
+
+
+void MainWindow::setMinimumFixedSize(QWidget* wid)
+{
+
+	auto size = wid->sizeHint();
+	qDebug() << "Width: " << size;
+
+	int w = QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+
+	this->setFixedWidth(size.width()+w);
+
+	
 }
 
 bool MainWindow::setupDataBase()

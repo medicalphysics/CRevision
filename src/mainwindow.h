@@ -18,6 +18,7 @@ Copyright 2019 Erlend Andersen
 #pragma once
 
 #include <QMainWindow>
+#include <QScrollArea>
 #include "userinfowidget.h"
 #include "questioncollectionwidget.h"
 #include "casewidget.h"
@@ -29,6 +30,7 @@ public:
 	MainWindow(QWidget* parent = nullptr);
 	
 protected:
+	void setMinimumFixedSize(QWidget*);
 	bool setupDataBase();
 	void saveAnswers();
 	void exportData();
