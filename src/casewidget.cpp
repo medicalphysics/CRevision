@@ -21,8 +21,8 @@ CaseWidget::CaseWidget(QWidget* parent)
 	auto layout = new QHBoxLayout();
 
 	m_lineEdit = new QLineEdit(this);
-	auto label = new QLabel(tr("Accession number:"), this);
-	auto copyButton = new QPushButton(tr("Copy"), this);
+	auto label = new QLabel(QString::fromLatin1("Undersøkelse:"), this);
+	auto copyButton = new QPushButton(tr("Kopier"), this);
 	connect(copyButton, &QPushButton::clicked, this, &CaseWidget::copyToClipBoard);
 	layout->addWidget(label);
 	layout->addWidget(m_lineEdit);

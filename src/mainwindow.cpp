@@ -40,10 +40,10 @@ MainWindow::MainWindow(QWidget* parent)
 {
 
 	auto menu = this->menuBar();
-	auto fileMenu = menu->addMenu(tr("File"));
-	auto exportAction = fileMenu->addAction(tr("Export answers"));
+	auto fileMenu = menu->addMenu(tr("Fil"));
+	auto exportAction = fileMenu->addAction(tr("Eksporter svar"));
 	fileMenu->addSeparator();
-	auto quitAction = fileMenu->addAction(tr("Quit"));
+	auto quitAction = fileMenu->addAction(tr("Avslutt"));
 	connect(exportAction, &QAction::triggered, this, &MainWindow::exportData);
 	connect(quitAction, &QAction::triggered, this, &MainWindow::close);
 	exportAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_E));
@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget* parent)
 	auto scrollArea = new QScrollArea(this);
 	m_questionsWidget = new QuestionCollectionWidget(scrollArea);
 	scrollArea->setWidget(m_questionsWidget);
-	scrollArea->setWidgetResizable(false);
+	scrollArea->setWidgetResizable(true);
 	scrollArea->setAlignment(Qt::AlignLeft);
 	//scrollArea->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 	scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -98,19 +98,19 @@ MainWindow::MainWindow(QWidget* parent)
 	connect(nextWidget, &NextWidget::saveAndNextCase, m_caseWidget, &CaseWidget::nextCase);
 	connect(m_questionsWidget, &QuestionCollectionWidget::answerReady, nextWidget, &NextWidget::answersReady);
 
-	QTimer::singleShot(0, [=](void) {this->setMinimumFixedSize(m_questionsWidget); });
+	QTimer::singleShot(0, [=](void) {this->setMinimumFixedSize(scrollArea); });
 }
 
 
 void MainWindow::setMinimumFixedSize(QWidget* wid)
 {
 
-	auto size = wid->sizeHint();
+	auto size = m_questionsWidget->sizeHint();
 	qDebug() << "Width: " << size;
 
 	int w = QApplication::style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-
-	this->setFixedWidth(size.width()+w);
+	
+	wid->setMinimumWidth(size.width() + w);
 
 	
 }
@@ -181,7 +181,7 @@ void MainWindow::saveAnswers()
 
 void MainWindow::exportData()
 {
-	auto savepath = QFileDialog::getSaveFileName(this, tr("Export answers"), "", "*.txt");
+	auto savepath = QFileDialog::getSaveFileName(this, tr("Eksporter svar"), "", "*.txt");
 	if (savepath.isNull())
 	{
 		return;

@@ -7,6 +7,7 @@
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QFont>
+#include <QTextEdit>
 
 
 
@@ -44,19 +45,38 @@ QuestionWidget::QuestionWidget(QWidget* parent, const QString& questionGroup, co
 	groupBox->setFlat(true); // no borders
 	questionLayout->addWidget(groupBox);
 	//comment
+	
+	/*
 	auto commentLayout = new QHBoxLayout(this);
 	auto commentLabel = new QLabel(tr("Comment"), this);
 	commentLabel->setFont(font);
 
 	commentLayout->addWidget(commentLabel);
+	
+	
 	auto commentLineEdit = new QLineEdit(this);
 	commentLineEdit->setFont(font);
 	connect(commentLineEdit, &QLineEdit::textChanged, this, &QuestionWidget::setComment);
 	connect(this, &QuestionWidget::cleared, commentLineEdit, &QLineEdit::clear);
-	commentLineEdit->setEnabled(m_hasComment);
 	commentLayout->addWidget(commentLineEdit);
 	questionLayout->addLayout(commentLayout);
 	questionLayout->addStretch();
+	if (!m_hasComment)
+	{
+		commentLabel->hide();
+		commentLineEdit->hide();
+	}
+
+	*/
+
+	if (m_hasComment)
+	{
+		auto commentEdit = new QTextEdit(this);
+		commentEdit->setPlaceholderText(tr("Kommentar"));
+		commentEdit->setFont(font);
+		connect(commentEdit, &QTextEdit::textChanged, [=](void) {this->m_comment = commentEdit->toPlainText(); });
+		questionLayout->addWidget(commentEdit);
+	}
 
 
 	this->setLayout(questionLayout);

@@ -8,9 +8,9 @@ NextWidget::NextWidget(QWidget* parent)
 {
 	auto layout = new QHBoxLayout(this);
 
-	m_saveNextButton = new QPushButton(tr("Save and Next"), this);
+	m_saveNextButton = new QPushButton(tr("Lagre og neste"), this);
 	m_saveNextButton->setDisabled(true);
-	auto discardNextButton = new QPushButton(tr("Discard and Next"), this);
+	auto discardNextButton = new QPushButton(tr("Slett og neste"), this);
 
 	connect(m_saveNextButton, &QPushButton::clicked, [=]() {emit this->saveAndNextCase(); });
 	connect(discardNextButton, &QPushButton::clicked, [=]() {emit this->discardAndNextCase(); });

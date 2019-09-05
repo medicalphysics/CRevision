@@ -28,7 +28,7 @@ QuestionCollectionWidget::QuestionCollectionWidget(QWidget* parent)
 	}
 	QMap<QString, QGridLayout*> layouts;
 
-	const int maxColumns = 3;
+	const int maxColumns = 1;
 
 	for (auto w : m_questionWidgets)
 	{

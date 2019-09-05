@@ -29,7 +29,7 @@ UserInfoWidget::UserInfoWidget(QWidget* parent)
 	auto mainLayout = new QVBoxLayout;
 
 	auto nameLayout = new QHBoxLayout;
-	auto nameLabel = new QLabel(tr("Name:"), this);
+	auto nameLabel = new QLabel(tr("Navn:"), this);
 	auto nameEdit = new QLineEdit(this);
 	//nameEdit->setText(findUsername());
 	nameLayout->addWidget(nameLabel);

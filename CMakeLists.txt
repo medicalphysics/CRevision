@@ -36,6 +36,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 # Define an executable (WIN32 argument to prevent console window on windows)
 add_executable(CRevision WIN32
+	crevision.rc
     src/app.cpp
 	src/mainwindow.h
 	src/mainwindow.cpp
