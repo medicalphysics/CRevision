@@ -44,30 +44,6 @@ QuestionWidget::QuestionWidget(QWidget* parent, const QString& questionGroup, co
 	groupBox->setLayout(groupBoxLayout);
 	groupBox->setFlat(true); // no borders
 	questionLayout->addWidget(groupBox);
-	//comment
-	
-	/*
-	auto commentLayout = new QHBoxLayout(this);
-	auto commentLabel = new QLabel(tr("Comment"), this);
-	commentLabel->setFont(font);
-
-	commentLayout->addWidget(commentLabel);
-	
-	
-	auto commentLineEdit = new QLineEdit(this);
-	commentLineEdit->setFont(font);
-	connect(commentLineEdit, &QLineEdit::textChanged, this, &QuestionWidget::setComment);
-	connect(this, &QuestionWidget::cleared, commentLineEdit, &QLineEdit::clear);
-	commentLayout->addWidget(commentLineEdit);
-	questionLayout->addLayout(commentLayout);
-	questionLayout->addStretch();
-	if (!m_hasComment)
-	{
-		commentLabel->hide();
-		commentLineEdit->hide();
-	}
-
-	*/
 
 	if (m_hasComment)
 	{
@@ -77,11 +53,8 @@ QuestionWidget::QuestionWidget(QWidget* parent, const QString& questionGroup, co
 		connect(commentEdit, &QTextEdit::textChanged, [=](void) {this->m_comment = commentEdit->toPlainText(); });
 		questionLayout->addWidget(commentEdit);
 	}
-
-
 	this->setLayout(questionLayout);
 }
-
 
 void QuestionWidget::clearQuestion()
 {

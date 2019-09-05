@@ -87,15 +87,15 @@ MainWindow::MainWindow(QWidget* parent)
 	mainWidget->setLayout(mainLayout);
 	setCentralWidget(mainWidget);
 
-
-
 	//logic
 	connect(m_userInfo, &UserInfoWidget::usernameChanged, m_caseWidget, &CaseWidget::setUserName);
 	connect(nextWidget, &NextWidget::discardAndNextCase, m_questionsWidget, &QuestionCollectionWidget::clearAllQuestions);
 	connect(nextWidget, &NextWidget::discardAndNextCase, m_caseWidget, &CaseWidget::nextCase);
+	connect(nextWidget, &NextWidget::discardAndNextCase, [=](void) {scrollArea->ensureVisible(0, 0, 1, 1); });
 	connect(nextWidget, &NextWidget::saveAndNextCase, this, &MainWindow::saveAnswers);
 	connect(nextWidget, &NextWidget::saveAndNextCase, m_questionsWidget, &QuestionCollectionWidget::clearAllQuestions);
 	connect(nextWidget, &NextWidget::saveAndNextCase, m_caseWidget, &CaseWidget::nextCase);
+	connect(nextWidget, &NextWidget::saveAndNextCase, [=](void) {scrollArea->ensureVisible(0, 0, 1, 1); });
 	connect(m_questionsWidget, &QuestionCollectionWidget::answerReady, nextWidget, &NextWidget::answersReady);
 
 	QTimer::singleShot(0, [=](void) {this->setMinimumFixedSize(scrollArea); });
