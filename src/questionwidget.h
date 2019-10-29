@@ -5,6 +5,8 @@
 #include <QStringList>
 #include <QRadioButton>
 #include <QVector>
+#include <QTextEdit>
+
 class QuestionWidget : public QWidget
 {
 	Q_OBJECT
@@ -29,6 +31,7 @@ protected:
 	void setComment(const QString& txt) { m_comment = txt; }
 private:
 	bool m_hasComment = true;
+	QTextEdit* m_commentEdit = nullptr;
 	QString m_questionGroup = "";
 	QString m_question = "";
 	QString m_comment = "";

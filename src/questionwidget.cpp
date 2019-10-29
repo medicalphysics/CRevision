@@ -7,7 +7,7 @@
 #include <QGroupBox>
 #include <QLineEdit>
 #include <QFont>
-#include <QTextEdit>
+
 
 
 
@@ -47,11 +47,11 @@ QuestionWidget::QuestionWidget(QWidget* parent, const QString& questionGroup, co
 
 	if (m_hasComment)
 	{
-		auto commentEdit = new QTextEdit(this);
-		commentEdit->setPlaceholderText(tr("Kommentar"));
-		commentEdit->setFont(font);
-		connect(commentEdit, &QTextEdit::textChanged, [=](void) {this->m_comment = commentEdit->toPlainText(); });
-		questionLayout->addWidget(commentEdit);
+		m_commentEdit = new QTextEdit(this);
+		m_commentEdit->setPlaceholderText(tr("Kommentar"));
+		m_commentEdit->setFont(font);
+		connect(m_commentEdit, &QTextEdit::textChanged, [=](void) {this->m_comment = m_commentEdit->toPlainText(); });
+		questionLayout->addWidget(m_commentEdit);
 	}
 	this->setLayout(questionLayout);
 }
@@ -66,6 +66,10 @@ void QuestionWidget::clearQuestion()
 	}
 	m_hasAnswer = false;
 	m_comment = "";
+	if (m_commentEdit)
+	{
+		m_commentEdit->clear();
+	}
 	emit cleared();
 }
 

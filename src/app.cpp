@@ -18,17 +18,24 @@ Copyright 2019 Erlend Andersen
 
 #include <QApplication>
 #include <QSurfaceFormat>
+#include <QQuickStyle> 
+#include <QStyleFactory>
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
 
 #include "mainwindow.h"
-
-
 
 int main (int argc, char *argv[])
 {
 	
 	QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 	QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+
 	QApplication app(argc, argv);
+
+	QApplication::setStyle(QStyleFactory::create("Fusion"));
+	
 	QCoreApplication::setApplicationName("CRevision");
 	QCoreApplication::setOrganizationName("SSHF");
 	app.setWindowIcon(QIcon("resources/icons/icon.png"));

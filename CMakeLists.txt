@@ -18,7 +18,7 @@ include(GNUInstallDirs)
 set(CMAKE_CONFIGURATION_TYPES )
 
 ##find QT
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Sql LinguistTools)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Sql LinguistTools Quick QuickControls2)
 
 ## QT specifics for CMake
 set(CMAKE_AUTOMOC ON)
@@ -28,7 +28,7 @@ set(CMAKE_AUTORCC ON)
 
 
 IF(UNIX AND NOT APPLE)
-    find_package(Qt5 REQUIRED COMPONENTS X11Extras )
+    find_package(Qt5 REQUIRED COMPONENTS X11Extras)
 ENDIF()
 include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
@@ -68,6 +68,8 @@ target_link_libraries(CRevision
 		Qt5::Gui
 		Qt5::Charts
 		Qt5::Sql
+		Qt5::Quick
+		Qt5::QuickControls2
         )
 ##adding REQUIRED dlls to the binary folder of executable
 #adding target to copy qt dlls 
@@ -76,21 +78,23 @@ if (WIN32)
     get_filename_component(QT5_WINDEPLOYQT_EXECUTABLE ${QT5_QMAKE_EXECUTABLE} PATH)
     set(QT5_WINDEPLOYQT_EXECUTABLE "${QT5_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
 	add_custom_target(qtdeploy ALL
-       COMMAND ${QT5_WINDEPLOYQT_EXECUTABLE} --qmldir ${CMAKE_BINARY_DIR} $<TARGET_FILE_DIR:CRevision>)
+       COMMAND ${QT5_WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE_DIR:CRevision>)# --qmldir ${CMAKE_BINARY_DIR} $<TARGET_FILE_DIR:CRevision>)
 endif(WIN32)
 
 
 #Copying application resources
 add_custom_target(addresources ALL)
 set (fileresources 
-	"icons/icon.png"
-	"data/sampleCases.txt"
-	"data/sampleQuestions.txt"
+	"resources/icons/icon.png"
+	"resources/data/sampleCases.txt"
+	"resources/data/sampleQuestions.txt"
 	)
+
+
 foreach(fileresource ${fileresources})
-	set(outpath "${CMAKE_BINARY_DIR}/resources/${fileresource}")
-	set(inpath "${CMAKE_CURRENT_SOURCE_DIR}/resources/${fileresource}")
-	message("Setup cpoying ${inpath} to ${outpath}")
+	set(outpath "${CMAKE_BINARY_DIR}/${fileresource}")
+	set(inpath "${CMAKE_CURRENT_SOURCE_DIR}/${fileresource}")
+	message("Setup copying ${inpath} to ${outpath}")
 	add_custom_command(TARGET addresources POST_BUILD
 		COMMENT "Copying file ${inpath} to ${outpath}."
 		DEPENDS ${inpath}
