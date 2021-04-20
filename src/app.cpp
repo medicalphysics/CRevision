@@ -18,7 +18,7 @@ Copyright 2019 Erlend Andersen
 
 #include <QApplication>
 #include <QSurfaceFormat>
-#include <QQuickStyle> 
+//#include <QQuickStyle> 
 #include <QStyleFactory>
 #include <QFile>
 #include <QTextStream>
@@ -34,7 +34,7 @@ int main (int argc, char *argv[])
 
 	QApplication app(argc, argv);
 
-	QApplication::setStyle(QStyleFactory::create("Fusion"));
+	//QApplication::setStyle(QStyleFactory::create("Fusion"));
 	
 	QCoreApplication::setApplicationName("CRevision");
 	QCoreApplication::setOrganizationName("SSHF");

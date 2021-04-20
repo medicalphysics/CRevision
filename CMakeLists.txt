@@ -15,24 +15,32 @@ include(GNUInstallDirs)
 
 
 # Build types 
-set(CMAKE_CONFIGURATION_TYPES )
+set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo MinSizeRel)
 
 ##find QT
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Sql LinguistTools Quick QuickControls2)
-
+## Include QT
 ## QT specifics for CMake
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+set(Qt5_DIR "C:/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5")
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Sql Gui)
+find_package(Qt5Charts)
+IF(UNIX AND NOT APPLE)
+    find_package(Qt5 REQUIRED COMPONENTS X11Extras )
+ENDIF()
+include_directories(${Qt5Widgets_INCLUDE_DIRS})
+include_directories(${Qt5Charts_INCLUDE_DIRS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 
 
 
 IF(UNIX AND NOT APPLE)
     find_package(Qt5 REQUIRED COMPONENTS X11Extras)
 ENDIF()
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+
 
 # Define an executable (WIN32 argument to prevent console window on windows)
 add_executable(CRevision WIN32
@@ -59,7 +67,6 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/CRevision")
 
 #creating translations
 message(${CMAKE_SOURCE_DIR})
-qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR}/src english.ts norwegian.ts)
 
 # Define the libraries this project depends upon
 target_link_libraries(CRevision
@@ -68,8 +75,6 @@ target_link_libraries(CRevision
 		Qt5::Gui
 		Qt5::Charts
 		Qt5::Sql
-		Qt5::Quick
-		Qt5::QuickControls2
         )
 ##adding REQUIRED dlls to the binary folder of executable
 #adding target to copy qt dlls 

@@ -61,8 +61,8 @@ void QuestionModel::readQuestions(const QString& filepath)
 			ignore = true;
 		if (auto first_element = line.at(0).trimmed(); first_element.at(0) == '#')
 			ignore = true;
-		auto  element= this->record();
-		
+		auto  element = this->record();
+
 		if (line.count() < element.count() - 1)
 			ignore = true;
 
@@ -79,7 +79,7 @@ void QuestionModel::readQuestions(const QString& filepath)
 			submitAll();
 		}
 	}
-	file.close();	
+	file.close();
 }
 
 
@@ -132,19 +132,16 @@ void CaseModel::readCases(const QString& filepath)
 	QTextStream in(&file);
 	while (!in.atEnd())
 	{
-		QStringList line = in.readLine().split(';');
-		bool ignore = false;
-		if (line.length() == 0)
-			ignore = true;
-		if (auto first_element = line.at(0).trimmed(); first_element.at(0) == '#')
-			ignore = true;
+		const auto line = in.readLine().trimmed();
+		bool skip = line.at(0) == '#' || line.size() == 0;
+
 		auto  element = this->record();
 
-		if (line.count() < element.count() - 1)
-			ignore = true;
-		if (!ignore)
+		auto test = line.toStdString();
+
+		if (!skip)
 		{
-			element.setValue("accession_name", line.at(0).trimmed());
+			element.setValue("accession_name", line);
 			auto success = insertRecord(-1, element);
 			if (!success)
 				qDebug() << "Failed to insert case row";
@@ -156,5 +153,4 @@ void CaseModel::readCases(const QString& filepath)
 	//deleting duplucates
 	auto db = database();
 	db.exec("DELETE FROM cases WHERE id NOT IN (SELECT MAX(id) FROM cases GROUP BY accession_name)");
-
 }

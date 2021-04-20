@@ -13,3 +13,7 @@ Rapport/beskrivelse; 11. I hvilken grad er alle kliniske problemstillinger besva
 Rapport/beskrivelse; 12. I hvilken grad er det en adekvat oppsummering (R)?; Nei-uklar, liten grad, middels, stor grad, ja-komplett;N
 Klinisk betydning/læringspotensiale; 13 Er tolkningsavvik av klinisk betydning?; Nei, Ja for utredning, Ja for behandling, Ikke aktuelt; Y
 Klinisk betydning/læringspotensiale; 14 Er undersøkelsen egnet for læring?; Ja, Nei; Y
+
+
+
+
