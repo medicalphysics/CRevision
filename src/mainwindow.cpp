@@ -207,11 +207,13 @@ void MainWindow::exportData()
 		{
 			for (const auto& fn : fieldNames)
 			{ 
-				stream << query.value(fn).toString() << ";";
+				auto value = query.value(fn).toString();
+				value.replace(QChar(';'), QChar(' '));
+				value.replace(QChar('\n'), QChar(' '));				
+				stream << value << ";";
 			}
 			stream << "\n";
 		}
 		file.close();
 	}
-
 }
