@@ -1,102 +1,142 @@
 #include "questioncollectionwidget.h"
 #include "questionwidget.h"
 
-#include <QVBoxLayout>
-#include <QString>
+#include <QFont>
 #include <QGridLayout>
 #include <QGroupBox>
-#include <QFont>
+#include <QPushButton>
+#include <QString>
+#include <QVBoxLayout>
 
-QuestionCollectionWidget::QuestionCollectionWidget(QWidget* parent)
-	:QWidget(parent)
+QuestionCollectionWidget::QuestionCollectionWidget(QuestionModel* questionModel, AnswerModel* answerModel, QWidget* parent)
+    : QWidget(parent)
+    , m_questionModel(questionModel)
+    , m_answerModel(answerModel)
 {
-	QSqlDatabase db = QSqlDatabase::database();
-	m_questionModel = new QuestionModel(this, db);
 
-	auto mainLayout = new QVBoxLayout(this);
+    auto mainLayout = new QVBoxLayout(this);
 
-	for (int i = 0; i < m_questionModel->questionCount(); ++i)
-	{
-		auto q = m_questionModel->question(i);
-		if (q.valid)
-		{
-			auto w = new QuestionWidget(this, q.questionGroup, q.question, q.answers, q.comment);
-			m_questionWidgets.append(w);
-			connect(w, &QuestionWidget::answerChanged, this, &QuestionCollectionWidget::answerChanged);
-			//mainLayout->addWidget(w);
-		}
-	}
-	QMap<QString, QGridLayout*> layouts;
+    for (int i = 0; i < m_questionModel->questionCount(); ++i) {
+        auto q = m_questionModel->question(i);
+        if (q.valid) {
+            auto w = new QuestionWidget(q.questionGroup, q.roles, q.question, q.answers, q.criteria, q.comment, this);
+            m_questionWidgets.append(w);
+            connect(w, &QuestionWidget::answerChanged, this, &QuestionCollectionWidget::answerChanged);
+        }
+    }
 
-	const int maxColumns = 1;
+    const int maxColumns = 1;
 
-	for (auto w : m_questionWidgets)
-	{
-		auto group = w->questionGroup();
-		if (!layouts.contains(group))
-		{
-			auto box = new QGroupBox(group);
+    for (auto w : m_questionWidgets) {
+        auto group = w->questionGroup();
 
-			QFont font = box->font();
-			font.setPointSize(font.pointSize() + 4);
-			font.setBold(true);
-			box->setFont(font);
+        if (!m_questionGroupBoxes.contains(group)) {
+            auto box = new QGroupBox(group);
+            m_questionGroupBoxes[group] = box;
 
-			layouts[group] = new QGridLayout(this);
-			box->setLayout(layouts[group]);
-			mainLayout->addWidget(box);
-		}
-		auto layout = layouts[group];
-		layout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-		const int n_elements = layout->count();
+            QFont font = box->font();
+            font.setPointSize(font.pointSize() + 4);
+            font.setBold(true);
+            box->setFont(font);
 
-		const int row = n_elements / maxColumns;
-		const int column = n_elements % maxColumns;
-		layout->addWidget(w, row, column);
-	}
+            auto glayout = new QGridLayout(this);
+            box->setLayout(glayout);
+            mainLayout->addWidget(box);
+            glayout->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+        }
+        auto box = m_questionGroupBoxes[group];
+        auto glayout = static_cast<QGridLayout*>(box->layout());
+        const int n_elements = glayout->count();
 
-	mainLayout->addStretch();
-	
-	auto vStrechLayout = new QHBoxLayout(this);
-	vStrechLayout->setContentsMargins(0, 0, 0, 0);
-	vStrechLayout->addLayout(mainLayout);
-	auto spacerItem = new QSpacerItem(1, 1, QSizePolicy::Maximum, QSizePolicy::Maximum);
-	vStrechLayout->addSpacerItem(spacerItem);
+        const int row = n_elements / maxColumns;
+        const int column = n_elements % maxColumns;
+        glayout->addWidget(w, row, column);
+    }
 
+    //buttons
+    auto saveNextButton = new QPushButton(tr("Lagre og neste"), this);
+    connect(saveNextButton, &QPushButton::clicked, this, &QuestionCollectionWidget::saveAnswers);
+    connect(this, &QuestionCollectionWidget::answerReady, saveNextButton, &QPushButton::setEnabled);
+    auto discardNextButton = new QPushButton(tr("Forkast og neste"), this);
+    connect(discardNextButton, &QPushButton::clicked, this, &QuestionCollectionWidget::nextCase);
+    auto buttonLayout = new QHBoxLayout;
+    buttonLayout->addWidget(saveNextButton);
+    buttonLayout->addStretch();
+    buttonLayout->addWidget(discardNextButton);
+    mainLayout->addLayout(buttonLayout);
 
-	setLayout(vStrechLayout);
-}
+    mainLayout->addStretch();
 
-QVector<Answer> QuestionCollectionWidget::getAnswers()
-{
-	QVector<Answer> answers(m_questionWidgets.size());
-	for (int i = 0; i < m_questionWidgets.size(); ++i)
-	{
-		answers[i].questionGroup = m_questionWidgets[i]->questionGroup();
-		answers[i].question = m_questionWidgets[i]->question();
-		answers[i].answer = m_questionWidgets[i]->answer();
-		answers[i].comment = m_questionWidgets[i]->comment();
-		answers[i].isValid = m_questionWidgets[i]->hasAnswer();
-		answers[i].answers = m_questionWidgets[i]->answers();
-	}
-	return answers;
+    auto vStrechLayout = new QHBoxLayout(this);
+    vStrechLayout->setContentsMargins(0, 0, 0, 0);
+    vStrechLayout->addLayout(mainLayout);
+    auto spacerItem = new QSpacerItem(1, 1, QSizePolicy::Maximum, QSizePolicy::Maximum);
+    vStrechLayout->addSpacerItem(spacerItem);
+    setLayout(vStrechLayout);
 }
 
 void QuestionCollectionWidget::clearAllQuestions()
 {
-	for (auto w : m_questionWidgets)
-	{
-		w->clearQuestion();
-	}
-	emit answerReady(false);
+    for (auto w : m_questionWidgets) {
+        w->clearQuestion();
+    }
+    emit answerReady(false);
+}
+
+void QuestionCollectionWidget::setRole(const QString& role)
+{
+    m_currentRole = role;
+
+    auto ibeg = m_questionGroupBoxes.begin();
+    while (ibeg != m_questionGroupBoxes.end()) {
+        ibeg.value()->setVisible(false);
+        ibeg++;
+    }
+
+    int question_number = 1;
+    for (auto w : m_questionWidgets) {
+        w->setRole(m_currentRole);        
+        if (w->validRole()) {
+            w->setQuestionNumber(question_number++);
+            const auto& groupname = w->questionGroup();
+            if (m_questionGroupBoxes.contains(groupname)) {
+                m_questionGroupBoxes[groupname]->setVisible(true);                
+            }            
+        }
+    }
+
+    this->setVisible(!m_currentRole.isEmpty());
+}
+
+void QuestionCollectionWidget::setUserName(const QString& uname)
+{
+    m_currentUserName = uname;
+    for (auto w : m_questionWidgets) {
+        w->setUserName(m_currentUserName);
+    }
+}
+void QuestionCollectionWidget::setCase(const QString& ccase)
+{
+    m_currentCase = ccase;
+    for (auto w : m_questionWidgets) {
+        w->setCase(m_currentCase);
+    }
 }
 
 void QuestionCollectionWidget::answerChanged(void)
 {
-	bool allAnswered = true;
-	for (auto w : m_questionWidgets)
-	{
-		allAnswered = w->hasAnswer() && allAnswered;
-	}
-	emit answerReady(allAnswered);
+    bool allAnswered = true;
+    for (auto w : m_questionWidgets) {
+        allAnswered = (w->hasAnswer() || !(w->validRole())) && allAnswered;
+    }
+    emit answerReady(allAnswered);
+}
+
+void QuestionCollectionWidget::saveAnswers()
+{
+    for (auto w : m_questionWidgets) {
+        const auto ans = w->answer();
+        m_answerModel->saveAnswer(ans);
+    }
+    emit nextCase();
 }

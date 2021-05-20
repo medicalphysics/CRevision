@@ -1,7 +1,7 @@
-#List cases
-NORSSK234567
-Norsssk3452
-Norsssk3452
-NORSSF584
+#List cases; role
+caseRadiograf1;Radiograf
+caseRadiolog1;Radiolog
+caseAlle1
+caseAlle2;
 
 

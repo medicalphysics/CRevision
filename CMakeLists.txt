@@ -1,112 +1,106 @@
 cmake_minimum_required(VERSION 3.9)
 
-#set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo MinSizeRel CACHE TYPE INTERNAL FORCE)
 set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo MinSizeRel)
 
-project(CRevision VERSION 0.1.0 DESCRIPTION "CRevision description" LANGUAGES CXX C)
+project(CRevision VERSION 0.1.0 DESCRIPTION "CRevision description" LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Must use GNUInstallDirs to install libraries into correct
 # locations on all platforms.
 include(GNUInstallDirs)
 
-
-# Build types 
-set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo MinSizeRel)
-
 ##find QT
 ## Include QT
 ## QT specifics for CMake
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(Qt5_DIR "C:/Qt/5.15.2/msvc2019_64/lib/cmake/Qt5")
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets Charts Sql Gui)
-find_package(Qt5Charts)
-IF(UNIX AND NOT APPLE)
-    find_package(Qt5 REQUIRED COMPONENTS X11Extras )
-ENDIF()
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
-include_directories(${Qt5Charts_INCLUDE_DIRS})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Sql LinguistTools REQUIRED)
 
+#set(TS_FILES translations/CTCAExplorer_en_US.ts)
+set(RS_FILES resources/resources.qrc)
 
-
-IF(UNIX AND NOT APPLE)
-    find_package(Qt5 REQUIRED COMPONENTS X11Extras)
-ENDIF()
-
-
-
-# Define an executable (WIN32 argument to prevent console window on windows)
-add_executable(CRevision WIN32
-	crevision.rc
+set(PROJECT_SOURCES
     src/app.cpp
-	src/mainwindow.h
-	src/mainwindow.cpp
-	src/userinfowidget.h
-	src/userinfowidget.cpp
-	src/models.h
-	src/models.cpp
-	src/questionwidget.h
-	src/questionwidget.cpp
-	src/questioncollectionwidget.h
-	src/questioncollectionwidget.cpp
-	src/casewidget.cpp
-	src/casewidget.h
-	src/nextwidget.cpp
-	src/nextwidget.h
+    src/mainwindow.cpp
+    src/userwidget.cpp
+    src/models.cpp
+    src/questionwidget.cpp
+    src/questioncollectionwidget.cpp
+    src/casewidget.cpp
+    src/nextwidget.cpp
+    src/rolewidget.cpp
+    src/infowidget.cpp
+    ${TS_FILES}
+    ${RS_FILES}
     )
+set(PROJECT_HEADERS
+    include/mainwindow.h
+    include/userwidget.h
+    include/models.h
+    include/questionwidget.h
+    include/questioncollectionwidget.h
+    include/casewidget.h
+    include/nextwidget.h
+    include/rolewidget.h
+    include/infowidget.h
+    )
+
+
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(CRevision WIN32
+        ${PROJECT_SOURCES}
+        ${PROJECT_HEADERS}
+        )
+    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+else()
+    add_executable(CRevision WIN32
+        ${PROJECT_SOURCES}
+        ${PROJECT_HEADERS}
+        )
+    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+endif()
+
+target_link_libraries(CRevision PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql)
+target_include_directories(CRevision PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/CRevision")
 
-#creating translations
-message(${CMAKE_SOURCE_DIR})
 
-# Define the libraries this project depends upon
-target_link_libraries(CRevision
-        Qt5::Widgets
-		Qt5::Core
-		Qt5::Gui
-		Qt5::Charts
-		Qt5::Sql
-        )
-##adding REQUIRED dlls to the binary folder of executable
-#adding target to copy qt dlls 
 if (WIN32)
-    get_target_property(QT5_QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
-    get_filename_component(QT5_WINDEPLOYQT_EXECUTABLE ${QT5_QMAKE_EXECUTABLE} PATH)
-    set(QT5_WINDEPLOYQT_EXECUTABLE "${QT5_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
-	add_custom_target(qtdeploy ALL
-       COMMAND ${QT5_WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE_DIR:CRevision>)# --qmldir ${CMAKE_BINARY_DIR} $<TARGET_FILE_DIR:CRevision>)
+    get_target_property(QT_QMAKE_EXECUTABLE Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
+    get_filename_component(QT_WINDEPLOYQT_EXECUTABLE ${QT_QMAKE_EXECUTABLE} PATH)
+    set(QT_WINDEPLOYQT_EXECUTABLE "${QT_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
+    add_custom_target(qtdeploy ALL
+        COMMAND ${QT_WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE_DIR:CRevision>)
 endif(WIN32)
 
 
 #Copying application resources
-add_custom_target(addresources ALL)
-set (fileresources 
-	"resources/icons/icon.png"
-	"resources/data/sampleCases.txt"
-	"resources/data/sampleQuestions.txt"
-	)
+set (fileresources
+#    "resources/icons/icon.png"
+    "resources/data/sampleCases.txt"
+    "resources/data/sampleQuestions.txt"
+    )
 
 
 foreach(fileresource ${fileresources})
-	set(outpath "${CMAKE_BINARY_DIR}/${fileresource}")
-	set(inpath "${CMAKE_CURRENT_SOURCE_DIR}/${fileresource}")
-	message("Setup copying ${inpath} to ${outpath}")
-	add_custom_command(TARGET addresources POST_BUILD
-		COMMENT "Copying file ${inpath} to ${outpath}."
-		DEPENDS ${inpath}
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-		${inpath}
-		${outpath}
-	)
+    set(outpath "${CMAKE_BINARY_DIR}/${fileresource}")
+    set(inpath "${CMAKE_CURRENT_SOURCE_DIR}/${fileresource}")
+    message("Setup copying ${inpath} to ${outpath}")
+    add_custom_command(TARGET qtdeploy POST_BUILD
+        COMMENT "Copying file ${inpath} to ${outpath}."
+        DEPENDS ${inpath}
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${inpath}
+        ${outpath}
+        )
 endforeach()
 
 

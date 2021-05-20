@@ -1,0 +1,19 @@
+#Question group; Role; Question; Answers (comma delimited); Enable comment (Y)
+Henvisningen;Radiograf; 1. Er den kliniske problemstillingen klart definert?;Nei, Mangler, I liten grad, I stor grad, Fullstendig;N
+Henvisningen;Radiograf,Radiolog; 2. Er det gitt tilstrekkelig informasjon?;Meget mangelfull, Ganske mangelfull, Middels, Tilnærmet tilstrekkelig, Komplett;N
+Henvisningen; Radiograf,Radiolog; 3. Er undersøkelsen berettiget?;Nei, Sannsynligvis, Helt klart, Ikke nok til å vurdere;N
+Undersøkelseskvalitet; Radiolog; 4. Holder undersøkelsen tilstrekkelig kvalitet? (Katetre, tube, ect);Nei, Ikke tilfredsstilliende, I liten grad, Tilfredsstillende, Komplett; Y
+Undersøkelseskvalitet; Radiograf; 5. Er posisjoneringen av pasienten tilstrekkelig god?;Nei, Ikke tilfredsstilliende, I liten grad, Tilfredsstillende, Komplett; Y
+Undersøkelseskvalitet; ;6. Er projeksjonen tilstrekkelig god?;Nei, Ikke tilfredsstilliende, I liten grad, Tilfredsstillende, Komplett; Y
+Undersøkelseskvalitet; ;7. Er bildekvaliteten tilstrekkelig god? (Nok gjennomslått, artefakter, støy, urolig, ect);Nei, Ikke tilfredsstilliende, I liten grad, Tilfredsstillende, Komplett; Y
+Tolkning; ;8. Er du ening i tolkningen?; Nei-helt uenig, Litt uenig, Usikker, I hovedsak enig, Helt enig; Y
+Rapport/beskrivelse; ;9. I hvilken grad kommer innholdet klart fram?; Nei-uklar, liten grad, middels, stor grad, ja-komplett;N
+Rapport/beskrivelse; ;10. I hvilken grad er alle relevante funn beskrevet?; Nei-uklar, liten grad, middels, stor grad, ja-komplett;N
+Rapport/beskrivelse; ;11. I hvilken grad er alle kliniske problemstillinger besvart?; Nei-uklar, liten grad, middels, stor grad, ja-komplett;N
+Rapport/beskrivelse; ;12. I hvilken grad er det en adekvat oppsummering (R)?; Nei-uklar, liten grad, middels, stor grad, ja-komplett;N
+Klinisk betydning/læringspotensiale; ;13 Er tolkningsavvik av klinisk betydning?; Nei, Ja for utredning, Ja for behandling, Ikke aktuelt; Y
+Klinisk betydning/læringspotensiale; ;14 Er undersøkelsen egnet for læring?; Ja, Nei; Y
+
+
+
+
