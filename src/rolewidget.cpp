@@ -76,6 +76,10 @@ void RoleWidget::updateRole(int roleID)
 {
     if (m_roles.contains(roleID)) {
         emit roleChanged(m_roles[roleID]);
+    } else if (m_roles.size() == 1) {
+        const auto key = m_roles.firstKey();
+        emit roleChanged(m_roles[key]);
+        m_buttons[0]->setChecked(true);
     } else {
         auto dummy = QString();
         emit roleChanged(dummy);
