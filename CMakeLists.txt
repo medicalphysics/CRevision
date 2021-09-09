@@ -72,6 +72,8 @@ target_include_directories(CRevision PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/CRevision")
 
+##deploy all win32 dlls since all are not included by default for cmake 3.19
+include(InstallRequiredSystemLibraries)
 
 if (WIN32)
     get_target_property(QT_QMAKE_EXECUTABLE Qt${QT_VERSION_MAJOR}::qmake IMPORTED_LOCATION)
@@ -79,6 +81,31 @@ if (WIN32)
     set(QT_WINDEPLOYQT_EXECUTABLE "${QT_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
     add_custom_target(qtdeploy ALL
         COMMAND ${QT_WINDEPLOYQT_EXECUTABLE} $<TARGET_FILE_DIR:CRevision>)
+
+    ##deploy all win32 dlls since all are not included by default for cmake 3.19
+    include(InstallRequiredSystemLibraries)
+    # For windows we need to include msvcp_atomic_wait library manually
+	foreach(WIN32LIB ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+		get_filename_component(WIN32LIBFOLDER ${WIN32LIB} DIRECTORY)
+		file(GLOB WIN32ALLLIBS "${WIN32LIBFOLDER}/*.dll")
+		foreach(WIN32LIBPATH ${WIN32ALLLIBS})
+			set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS ${WIN32LIBPATH} ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})        
+		endforeach()    
+	endforeach()
+	list(REMOVE_DUPLICATES CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+	foreach(WIN32LIB ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+		get_filename_component(WIN32LIBNAME ${WIN32LIB} NAME)
+        set(outpath "${CMAKE_BINARY_DIR}")
+		add_custom_command(TARGET qtdeploy POST_BUILD
+			COMMENT "Copying WIN32 dll ${WIN32LIB} to ${outpath}"
+			DEPENDS ${WIN32LIB}
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			${WIN32LIB}
+			${outpath}
+			)
+	endforeach()
+
+
 endif(WIN32)
 
 
